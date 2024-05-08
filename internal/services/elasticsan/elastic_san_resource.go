@@ -32,18 +32,18 @@ func (r ElasticSANResource) ModelObject() interface{} {
 }
 
 type ElasticSANResourceModel struct {
-	BaseSizeInTiB        int                          `tfschema:"base_size_in_tib"`
-	ExtendedSizeInTiB    int                          `tfschema:"extended_size_in_tib"`
+	BaseSizeInTiB        int64                        `tfschema:"base_size_in_tib"`
+	ExtendedSizeInTiB    int64                        `tfschema:"extended_size_in_tib"`
 	Location             string                       `tfschema:"location"`
 	Name                 string                       `tfschema:"name"`
 	ResourceGroupName    string                       `tfschema:"resource_group_name"`
 	Sku                  []ElasticSANResourceSkuModel `tfschema:"sku"`
 	Tags                 map[string]interface{}       `tfschema:"tags"`
-	TotalIops            int                          `tfschema:"total_iops"`
-	TotalMBps            int                          `tfschema:"total_mbps"`
-	TotalSizeInTiB       int                          `tfschema:"total_size_in_tib"`
-	TotalVolumeSizeInGiB int                          `tfschema:"total_volume_size_in_gib"`
-	VolumeGroupCount     int                          `tfschema:"volume_group_count"`
+	TotalIops            int64                        `tfschema:"total_iops"`
+	TotalMBps            int64                        `tfschema:"total_mbps"`
+	TotalSizeInTiB       int64                        `tfschema:"total_size_in_tib"`
+	TotalVolumeSizeInGiB int64                        `tfschema:"total_volume_size_in_gib"`
+	VolumeGroupCount     int64                        `tfschema:"volume_group_count"`
 	Zones                []string                     `tfschema:"zones"`
 }
 
@@ -205,8 +205,8 @@ func (r ElasticSANResource) Create() sdk.ResourceFunc {
 				Location: location.Normalize(config.Location),
 				Tags:     tags.Expand(config.Tags),
 				Properties: elasticsans.ElasticSanProperties{
-					BaseSizeTiB:             int64(config.BaseSizeInTiB),
-					ExtendedCapacitySizeTiB: int64(config.ExtendedSizeInTiB),
+					BaseSizeTiB:             config.BaseSizeInTiB,
+					ExtendedCapacitySizeTiB: config.ExtendedSizeInTiB,
 					Sku:                     ExpandSku(config.Sku),
 				},
 			}
@@ -255,13 +255,13 @@ func (r ElasticSANResource) Read() sdk.ResourceFunc {
 				prop := model.Properties
 				schema.Sku = FlattenSku(prop.Sku)
 				schema.Zones = zones.Flatten(prop.AvailabilityZones)
-				schema.BaseSizeInTiB = int(prop.BaseSizeTiB)
-				schema.ExtendedSizeInTiB = int(prop.ExtendedCapacitySizeTiB)
-				schema.TotalIops = int(pointer.From(prop.TotalIops))
-				schema.TotalMBps = int(pointer.From(prop.TotalMBps))
-				schema.TotalSizeInTiB = int(pointer.From(prop.TotalSizeTiB))
-				schema.TotalVolumeSizeInGiB = int(pointer.From(prop.TotalVolumeSizeGiB))
-				schema.VolumeGroupCount = int(pointer.From(prop.VolumeGroupCount))
+				schema.BaseSizeInTiB = prop.BaseSizeTiB
+				schema.ExtendedSizeInTiB = prop.ExtendedCapacitySizeTiB
+				schema.TotalIops = pointer.From(prop.TotalIops)
+				schema.TotalMBps = pointer.From(prop.TotalMBps)
+				schema.TotalSizeInTiB = pointer.From(prop.TotalSizeTiB)
+				schema.TotalVolumeSizeInGiB = pointer.From(prop.TotalVolumeSizeGiB)
+				schema.VolumeGroupCount = pointer.From(prop.VolumeGroupCount)
 			}
 
 			return metadata.Encode(&schema)
@@ -311,14 +311,14 @@ func (r ElasticSANResource) Update() sdk.ResourceFunc {
 				if payload.Properties == nil {
 					payload.Properties = &elasticsans.ElasticSanUpdateProperties{}
 				}
-				payload.Properties.BaseSizeTiB = pointer.To(int64(config.BaseSizeInTiB))
+				payload.Properties.BaseSizeTiB = pointer.To(config.BaseSizeInTiB)
 			}
 
 			if metadata.ResourceData.HasChange("extended_size_in_tib") {
 				if payload.Properties == nil {
 					payload.Properties = &elasticsans.ElasticSanUpdateProperties{}
 				}
-				payload.Properties.ExtendedCapacitySizeTiB = pointer.To(int64(config.ExtendedSizeInTiB))
+				payload.Properties.ExtendedCapacitySizeTiB = pointer.To(config.ExtendedSizeInTiB)
 			}
 
 			if metadata.ResourceData.HasChange("tags") {
