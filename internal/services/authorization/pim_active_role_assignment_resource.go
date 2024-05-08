@@ -456,8 +456,8 @@ type PimActiveRoleAssignmentResourceSchemaScheduleInfo struct {
 }
 
 type PimActiveRoleAssignmentResourceSchemaScheduleInfoExpiration struct {
-	DurationDays  int    `tfschema:"duration_days"`
-	DurationHours int    `tfschema:"duration_hours"`
+	DurationDays  int64  `tfschema:"duration_days"`
+	DurationHours int64  `tfschema:"duration_hours"`
 	EndDateTime   string `tfschema:"end_date_time"`
 }
 
@@ -622,7 +622,7 @@ func (r PimActiveRoleAssignmentResource) mapRoleAssignmentScheduleRequestPropert
 		reHours := regexp.MustCompile(`PT(\d+)H`)
 		matches := reHours.FindStringSubmatch(durationRaw)
 		if len(matches) == 2 {
-			hours, err := strconv.Atoi(matches[1])
+			hours, err := strconv.ParseInt(matches[1], 10, 0)
 			if err != nil {
 				return fmt.Errorf("could not decode hours from RoleAssignmentScheduleRequestPropertiesScheduleInfoExpiration: %+v", err)
 			}
@@ -631,7 +631,7 @@ func (r PimActiveRoleAssignmentResource) mapRoleAssignmentScheduleRequestPropert
 		reDays := regexp.MustCompile(`P(\d+)D`)
 		matches = reDays.FindStringSubmatch(durationRaw)
 		if len(matches) == 2 {
-			days, err := strconv.Atoi(matches[1])
+			days, err := strconv.ParseInt(matches[1], 10, 0)
 			if err != nil {
 				return fmt.Errorf("could not decode days from RoleAssignmentScheduleRequestPropertiesScheduleInfoExpiration: %+v", err)
 			}
